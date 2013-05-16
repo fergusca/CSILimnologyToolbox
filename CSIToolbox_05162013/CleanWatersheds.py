@@ -109,7 +109,7 @@ arcpy.JoinField_management(watersheds, "JOIN", seedpoly, "FID_TXT", "Permanent_"
 
 
 
-throwerror()
+
 
 
 
