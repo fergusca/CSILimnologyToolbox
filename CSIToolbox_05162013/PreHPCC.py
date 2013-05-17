@@ -1,5 +1,5 @@
 # Filename: PreHPCC.py
-# Purpose: Mosaic NEDs to NHD subregions, burn streams, build HUC12 walls and then clip to HUC8 boundaries.
+# Purpose: Mosaic NEDs to NHD subregions, burn streams and clip output to HUC8 boundaries.
 
 import os
 import shutil
