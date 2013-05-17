@@ -248,8 +248,11 @@ for root, dirs, filenames in os.walk(outfolder):
     if not string in filename: # If NED isn't in the filename
       remfilename = os.path.join(root, filename) # Get the absolute path to the file.
       os.remove(remfilename) # Remove the file
+try:
+    arcpy.Delete_management(os.path.join(outfolder, "huc8clips" + nhdsubregion, "NED_HU8_Alb.tif"))
 
-arcpy.Delete_management(os.path.join(outfolder, "huc8clips" + nhdsubregion, "NEDHU8_Alb.tif"))
+except:
+    pass
 try:
     shutil.rmtree(os.path.join(outfolder, "streamsburnt"))
     shutil.rmtree(os.path.join(outfolder, "walled"))
