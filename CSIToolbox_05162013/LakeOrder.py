@@ -11,7 +11,8 @@ arcpy.env.overwriteOutput = "TRUE"
 # User inputs:
 rivex = arcpy.GetParameterAsText(0) # A shapefile of rivers that has the "Strahler" field produced by RivEx extension.
 csilakes = arcpy.GetParameterAsText(1) # A shapefile of CSILakes.
-outfolder = arcpy.GetParameterAsText(2) # Location where output gets stored.
+nwi = arcpy.GetParameterAsText(2) # NWI shapefile
+outfolder = arcpy.GetParameterAsText(3) # Location where output gets stored.
 
 # Select non-artificial rivers that intersect lakes and make shapefile
 exp1 = '''"FType" = 334 OR "FType" = 336 OR "FType" = 460 OR "FType" = 566'''
@@ -65,3 +66,9 @@ del row
 del cursor
 
 # Select those lakes that intersect NWI Emergent or Forested wetlands
+arcpy.MakeFeatureLayer_management(outshp, os.path.join(outfolder, "outshp.lyr"))
+outshp_lyr = os.path.join(outfolder, "outshp.lyr")
+arcpy.SelectLayerByAttribute_management(outshp_lyr, "NEW_SELECTION", """"Class" = 'SE'""")
+arcpy.MakeFeatureLayer_management(nwi, os.path.join(outfolder, "nwi.lyr"))
+nwi_lyr = os.path.join(outfolder, "nwi.lyr")
+arcpy.SelectLayerByLocation_management(nwi_lyr, "INTERSECT",  

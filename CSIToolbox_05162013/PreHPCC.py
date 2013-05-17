@@ -13,14 +13,13 @@ arcpy.CheckOutExtension("Spatial")
 nhd = arcpy.GetParameterAsText(0)          # NHD subregion file geodatabase
 nedfolder = arcpy.GetParameterAsText(1)    # Folder containing NED ArcGrids
 outfolder = arcpy.GetParameterAsText(2)    # Output folder
-##hgt = arcpy.GetParameterAsText(3)          # Wall height over elevation
+
 # Reset environments to default
 arcpy.ResetEnvironments()
 arcpy.AddMessage("Reset Environments.")
 
 # Environment settings
 arcpy.env.compression = "NONE"
-
 arcpy.env.overwriteOutput = "TRUE"
 arcpy.env.pyramid = "NONE"
 arcpy.env.parallelProcessingFactor = "8"
@@ -34,6 +33,8 @@ nhdsubregion = subregion_number[4:8]
 if not os.path.exists(os.path.join(outfolder, "mosaic" + nhdsubregion)):
     os.mkdir(os.path.join(outfolder, "mosaic" + nhdsubregion))
 
+mosaicfolder = os.path.join(outfolder, "mosaic" + nhdsubregion)   
+
 if not os.path.exists(os.path.join(outfolder, "streamsburnt")):
     os.mkdir(os.path.join(outfolder, "streamsburnt"))
 
@@ -43,6 +44,7 @@ if not os.path.exists(os.path.join(outfolder, "walled")):
 if not os.path.exists(os.path.join(outfolder, "huc8clips" + nhdsubregion)):
     os.mkdir(os.path.join(outfolder, "huc8clips" + nhdsubregion))
 
+arcpy.RefreshCatalog(outfolder)
 
 # Create spatial reference objects:
 # NAD83 GCS (Input from NHD and NED)
@@ -54,7 +56,8 @@ nad83.create()
 albers = arcpy.SpatialReference()
 albers.factoryCode = 102039
 albers.create()
-##
+
+
 ####################################################################################################################################################
 # Mosiac NED tiles and clip to subregion.
 def mosaic():
@@ -85,7 +88,8 @@ def mosaic():
     # Mosaic, clip and then project to USGS Albers
     arcpy.MosaicToNewRaster_management(mosaicrasters, outfolder, "mosaicNAD.tif", nad83, "32_BIT_FLOAT", "", "1", "LAST")
     arcpy.Clip_management(outfolder + "\\" + "mosaicNAD.tif", '', outfolder + "\\" + "tempNED13_" + nhdsubregion + ".tif", "Subregion_5000m_buffer", "0", "ClippingGeometry")
-    arcpy.ProjectRaster_management(outfolder + "\\" + "tempNED13_" + nhdsubregion + ".tif", outfolder + "\\" + "mosaic" + "\\" + "NED13_" + nhdsubregion + ".tif", albers, "BILINEAR", "10", "", "", nad83)
+    tempned13 = os.path.join(outfolder, "tempNED13_" + nhdsubregion + ".tif")
+    arcpy.ProjectRaster_management(tempned13, os.path.join(mosaicfolder, "NED13_" + nhdsubregion + ".tif"), albers, "BILINEAR", "10", "", "", nad83)
     arcpy.AddMessage("Mosaiced, clipped and projected NED tiles.")
 
     # Variables for intermediate data
@@ -171,59 +175,6 @@ def burn():
     arcpy.AddMessage("Burn process completed")
     return
 burn()
-
-#################################################################################################################################################
-
-##def wall():
-##    NHD = nhd
-##    huc6mosaic = burnt_ned
-##    arcpy.env.workspace = nhd
-##    arcpy.env.compression = "NONE"
-##    arcpy.env.snapRaster = subregion_ned
-##    arcpy.env.cellSize = "10"
-##    albers = arcpy.SpatialReference()
-##    albers.factoryCode = 102039
-##    albers.create()
-##
-##    NAD83 = arcpy.SpatialReference()
-##    NAD83.factoryCode = "4269"
-##    NAD83.create()
-##
-##    arcpy.env.overwriteOutput = "TRUE"
-##    
-##    # Project HUC12 and Flowlines to USGS Albers then select the local HUC12s
-##    arcpy.Project_management("WBD_HU8", "huc12albers", albers, "", NAD83)
-##    arcpy.CopyFeatures_management("NHDFlowline", "Flowline")
-##    arcpy.Project_management("Flowline", "flowlinealbers", albers, "", NAD83)
-##    arcpy.AddMessage("Projected HUC8s and Flowlines to Albers.")
-##
-##    # Select out Subregion's HUC12s to fc "WBD_HU12_Local"
-##    arcpy.MakeFeatureLayer_management("huc12albers", "huc12", "", NHD)
-##    arcpy.MakeFeatureLayer_management("flowlinealbers", "flowline_layer", "", NHD)
-##    arcpy.SelectLayerByLocation_management("huc12", "INTERSECT", "flowline_layer")
-##    arcpy.CopyFeatures_management("huc12", "WBD_HU12_Local")
-##    arcpy.AddMessage("Selected local HUC8s.")
-##
-##    # Convert to lines and add a field to local HUC12s for wall height
-##    arcpy.PolygonToLine_management("WBD_HU12_Local","WallLines")
-##    arcpy.AddField_management("WallLines", "WallHeight", "DOUBLE", "", "", "7")
-##    arcpy.CalculateField_management("WallLines", "WallHeight", hgt, "PYTHON") 
-##
-##    # Convert wall lines to raster
-##    arcpy.FeatureToRaster_conversion("WallLines", "WallHeight", outfolder + "\\" + "Walls.tif")
-##    walls = os.path.join(outfolder, "Walls.tif")
-##    subregion_number = os.path.basename(NHD)
-##    nhdsubregion = subregion_number[4:8]
-##
-##    # Add rasters together
-##    wallsObject = Raster(walls)
-##    elevObject = Raster(burnt_ned)
-##    walled_ned = Con(IsNull(wallsObject),elevObject,(wallsObject + elevObject))
-##    walled_ned.save(os.path.join(outfolder, "Walled" + nhdsubregion + ".tif"))
-##    walled = os.path.join(outfolder, "Walled" + nhdsubregion + ".tif")
-##    global walled
-##    return
-####wall()
 
 ###############################################################################################################################################
 
