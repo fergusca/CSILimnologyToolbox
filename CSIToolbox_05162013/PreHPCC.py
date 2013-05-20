@@ -65,7 +65,7 @@ def mosaic():
     # Select the right HUC6 from WBD_HU4 and make it it's own layer.
     arcpy.MakeFeatureLayer_management("NHDPoint", "NHDPoints")
     arcpy.MakeFeatureLayer_management("WBD_HU4", "HU4")
-    arcpy.SelectLayerByLocation_management("HU4", "COMPLETELY_CONTAINS", "NHDPoints")
+    arcpy.SelectLayerByLocation_management("HU4", "COMPLETELY_CONTAINS", "NHDPointEventFC")
     arcpy.CopyFeatures_management("HU4", "Subregion")
 
     # Apply a 5000 meter buffer around subregion
