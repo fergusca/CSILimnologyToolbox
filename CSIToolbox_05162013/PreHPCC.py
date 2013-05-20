@@ -61,11 +61,13 @@ albers.create()
 ####################################################################################################################################################
 # Mosiac NED tiles and clip to subregion.
 def mosaic():
+    global nhdsubregion
     
     # Select the right HUC6 from WBD_HU4 and make it it's own layer.
-    arcpy.MakeFeatureLayer_management("NHDPointEventFC", "NHDPointEventFC")
     arcpy.MakeFeatureLayer_management("WBD_HU4", "HU4")
-    arcpy.SelectLayerByLocation_management("HU4", "COMPLETELY_CONTAINS", "NHDPointEventFC")
+    field = "HUC_4"
+    where = '"' + field + '" = ' + "'" + str(nhdsubregion) + "'"
+    arcpy.SelectLayerByAttribute_management("HU4", "NEW_SELECTION", where)
     arcpy.CopyFeatures_management("HU4", "Subregion")
 
     # Apply a 5000 meter buffer around subregion
