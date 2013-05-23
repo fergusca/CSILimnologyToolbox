@@ -120,6 +120,7 @@ arcpy.env.outputCoordinateSystem = subregion_ned
 # Burning Streams
 
 def burn():
+    
     # Start burning streams
 
     # Export NHDFlowlines to temp shapefile (can't project directly beause of geometric network)
@@ -183,6 +184,8 @@ burn()
 def clip():
     
     arcpy.env.workspace = nhd
+    arcpy.RefreshCatalog(nhd)
+    arcpy.ResetEnvironments()
 
     # Burnt and walled mosaiced elevation
     raster = burnt_ned
@@ -212,7 +215,8 @@ def clip():
     outfd = "HUC8_Albers"
 
     # Splits HUC8 into individual feature classes for each polygon
-    arcpy.AddField_management("WBD_HU8_Albers", "Label", "TEXT", "", "", "20", "NON_NULLABLE")
+    arcpy.AddField_management("WBD_HU8_Albers", "Label", "TEXT", "", "", "20", "")
+    arcpy.RefreshCatalog(nhd)
     calcexp = '"HUC" + !HUC_8!'
     arcpy.CalculateField_management("WBD_HU8_Albers", "Label", calcexp, "PYTHON")
     if not os.path.exists(os.path.join(outfolder, "cliptemp")):
@@ -227,6 +231,9 @@ def clip():
     fcs = arcpy.ListFeatureClasses("", "Polygon", "HUC8_Albers")
     for fc in fcs:
         arcpy.Buffer_analysis(fc, outfd + "\\" + fc + "_buffer", "5000 meters")
+
+    arcpy.RefreshCatalog(nhd)
+    arcpy.ResetEnvironments()
 
     # Clips rasters
     fcs = arcpy.ListFeatureClasses("*_buffer", "Polygon", "HUC8_Albers")
