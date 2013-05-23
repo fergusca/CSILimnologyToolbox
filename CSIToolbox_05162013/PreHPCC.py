@@ -215,7 +215,7 @@ def clip():
     outfd = "HUC8_Albers"
 
     # Splits HUC8 into individual feature classes for each polygon
-    arcpy.AddField_management("WBD_HU8_Albers", "Label", "TEXT", "", "", "20", "")
+    arcpy.AddField_management("WBD_HU8_Albers", "Label", "TEXT")
     arcpy.RefreshCatalog(nhd)
     calcexp = '"HUC" + !HUC_8!'
     arcpy.CalculateField_management("WBD_HU8_Albers", "Label", calcexp, "PYTHON")
