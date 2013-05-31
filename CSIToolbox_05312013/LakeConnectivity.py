@@ -27,8 +27,9 @@ subregion_number = os.path.basename(nhd)
 nhdsubregion = subregion_number[4:8]
 
 # Get lakes, ponds and reservoirs over a hectare.
-arcpy.MakeFeatureLayer_management(nhdwaterbody, os.path.join(outfolder, "csiwaterbody.lyr"),\
-                                  """"AreaSqKm" >= 0.01 AND ( "FType" = 390 OR "FType" = 436 )""")
+
+arcpy.MakeFeatureLayer_management(nhdwaterbody, os.path.join(outfolder, "csiwaterbody.lyr"),""""AreaSqKm" >=0.01 AND ( "FType" = 390 OR "FType" = 436) AND ("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621)""")
+                                  
 csiwaterbody_lyr = os.path.join(outfolder, "csiwaterbody.lyr")
 arcpy.CopyFeatures_management(csiwaterbody_lyr, os.path.join(outfolder, "csiwaterbody.shp"))
 csiwaterbody = os.path.join(outfolder, "csiwaterbody.shp")
@@ -152,13 +153,13 @@ st_lakes = os.path.join(outfolder, "ST_Lakes.shp")
 # Create a new field for connectivity classification in each class shape.
 typelist = [stla_lakes, se_lakes, st_lakes, hw_lakes]
 for type in typelist:
-    arcpy.AddField_management(type, "Class", "TEXT", "", "", "4")
+    arcpy.AddField_management(type, "Connection", "TEXT")
 
 # Calculate Class fields  
-arcpy.CalculateField_management(stla_lakes, "Class", '''"%s" % ("STLA")''', "PYTHON")
-arcpy.CalculateField_management(se_lakes, "Class", '''"%s" % ("SE")''', "PYTHON")
-arcpy.CalculateField_management(st_lakes, "Class", '''"%s" % ("ST")''', "PYTHON")
-arcpy.CalculateField_management(hw_lakes, "Class", '''"%s" % ("HW")''', "PYTHON")
+arcpy.CalculateField_management(stla_lakes, "Connection", '''"%s" % ("LakeStream")''', "PYTHON")
+arcpy.CalculateField_management(se_lakes, "Connection", '''"%s" % ("Isolated")''', "PYTHON")
+arcpy.CalculateField_management(st_lakes, "Connection", '''"%s" % ("Stream")''', "PYTHON")
+arcpy.CalculateField_management(hw_lakes, "Connection", '''"%s" % ("Headwater")''', "PYTHON")
 arcpy.AddMessage("Lake connectivity attribution is complete.")
 
 # Merge lake types to a single shape projected to albers.
