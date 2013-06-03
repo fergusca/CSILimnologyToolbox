@@ -14,6 +14,7 @@ csilakes = arcpy.GetParameterAsText(1) # A shapefile of CSILakes.
 nwi = arcpy.GetParameterAsText(2) # NWI shapefile
 outfolder = arcpy.GetParameterAsText(3) # Location where output gets stored.
 
+
 # Select non-artificial rivers that intersect lakes and make shapefile
 exp1 = '''"FType" = 334 OR "FType" = 336 OR "FType" = 460 OR "FType" = 566'''
 arcpy.MakeFeatureLayer_management(rivex, os.path.join(outfolder, "rivex.lyr"), exp1)
@@ -93,7 +94,7 @@ arcpy.CalculateField_management(outshp_lyr, "Strahler", "-2", "VB")
 arcpy.SelectLayerByLocation_management(nwi_lyr, "INTERSECT", isolakes, '', "NEW_SELECTION")
 arcpy.SelectLayerByAttribute_management(nwi_lyr, "SUBSET_SELECTION", """"WETLAND_TY" = 'Freshwater Emergent Wetland' OR "WETLAND_TY" = 'Freshwater Forested/Shrub Wetland' OR "WETLAND_TY" = 'Other'""")
 arcpy.SelectLayerByLocation_management(nwi_lyr, "INTERSECT", rivex, '', "SUBSET_SELECTION")
-arcpy.CopyFeatures_management(nwi_lyr, os.path.join(outfolder, "conwetlands_st.shp"))
+arcpy.Dissolve_management(nwi_lyr, os.path.join(outfolder, "conwetlands_st.shp"))
 conwetlands2 = os.path.join(outfolder, "conwetlands_st.shp")
 arcpy.SelectLayerByLocation_management(outshp_lyr, "INTERSECT", conwetlands2, '', "NEW_SELECTION")
 arcpy.SelectLayerByAttribute_management(outshp_lyr, "SUBSET_SELECTION", """"Connection" = 'Isolated'""")
