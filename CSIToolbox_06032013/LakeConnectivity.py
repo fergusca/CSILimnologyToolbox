@@ -9,11 +9,12 @@ import shutil
 # User input:
 nhd = arcpy.GetParameterAsText(0)
 arcpy.env.workspace = nhd
-outfolder = arcpy.GetParameterAsText(1)
+outfolderinput = arcpy.GetParameterAsText(1)
 
 # Environments:
 arcpy.ResetEnvironments()
 arcpy.env.overwriteOutput = "TRUE"
+arcpy.RefreshCatalog(outfolderinput)
 
 # Local variables:
 nhdflowline = nhd + "\\" + "Hydrography" + "\\" + "NHDFlowline"
@@ -25,6 +26,12 @@ fd = nhd + "\\" + "Hydrography"
 # Naming convention that inherits name from input NHD gdb.
 subregion_number = os.path.basename(nhd)
 nhdsubregion = subregion_number[4:8]
+
+# Create output subdirectory
+if not os.path.exists(os.path.join(outfolderinput, nhdsubregion)):
+    os.mkdir(os.path.join(outfolderinput, nhdsubregion))
+
+outfolder = os.path.join(outfolderinput, nhdsubregion)   
 
 # Get lakes, ponds and reservoirs over a hectare.
 
@@ -44,6 +51,7 @@ arcpy.AddMessage("Defined CSI lakes.")
 
 # Make junction shapefile and layer.
 arcpy.FeatureClassToShapefile_conversion(nhdjunction, outfolder)
+arcpy.RefreshCatalog(outfolder)
 csijunction =  os.path.join(outfolder, "HYDRO_NET_Junctions.shp")
 arcpy.MakeFeatureLayer_management(csijunction, os.path.join(outfolder, "csijunction.lyr"))
 csijunction_lyr = os.path.join(outfolder, "csijunction.lyr")
