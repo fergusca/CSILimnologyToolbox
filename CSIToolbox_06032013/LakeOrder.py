@@ -100,7 +100,16 @@ arcpy.SelectLayerByLocation_management(outshp_lyr, "INTERSECT", conwetlands2, ''
 arcpy.SelectLayerByAttribute_management(outshp_lyr, "SUBSET_SELECTION", """"Connection" = 'Isolated'""")
 arcpy.CalculateField_management(outshp_lyr, "Strahler", "-2", "VB")
 arcpy.SelectLayerByAttribute_management(outshp_lyr, "CLEAR_SELECTION")
-arcpy.CopyFeatures_management(outshp_lyr, os.path.join(outfolder, "LakeOrder.shp"))
-                                                    
+arcpy.CopyFeatures_management(outshp_lyr, os.path.join(outfolder, "preLakeOrder1.shp"))
+lakeorder1 = os.path.join(outfolder, "preLakeOrder1.shp")
 
-
+# Classify lakes from LakeOrder1 that are only intersected by intermittent streams.
+arcpy.MakeFeatureLayer_management(rivex, os.path.join(outfolder, "perennial.lyr"), """"FCode" = 46000 OR "FCode" = 46006 OR "FCode" = 33600 OR "FCode" = 33400 OR "FCode" = 33601""")
+perennial = os.path.join(outfolder, "perennial.lyr")
+arcpy.MakeFeatureLayer_management(lakeorder1, os.path.join(outfolder, "poslakeorder.lyr"))
+poslakeorder = os.path.join(outfolder, "poslakeorder.lyr")
+arcpy.SelectLayerByLocation_management(poslakeorder, "INTERSECT", perennial, '', "NEW_SELECTION")
+arcpy.SelectLayerByLocation_management(poslakeorder, "INTERSECT", perennial, '', "SWITCH_SELECTION")
+arcpy.SelectLayerByAttribute_management(poslakeorder, "SUBSET_SELECTION", """"Strahler" >= 0""")
+arcpy.CalculateField_management(poslakeorder, "Strahler", "-1", "VB")
+arcpy.CopyFeatures_management(poslakeorder, os.path.join(outfolder, "LakeOrder.shp"))                                          
