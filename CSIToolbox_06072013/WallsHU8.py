@@ -24,13 +24,13 @@ def wall():
 
     arcpy.env.overwriteOutput = "TRUE"
     
-    # Project HUC12 and Flowlines to USGS Albers then select the local HUC12s
+    # Project HUC12 and Flowlines to USGS Albers then select the local HUC8s
     arcpy.Project_management("WBD_HU8", "huc8albers", albers, "", NAD83)
     arcpy.CopyFeatures_management("NHDFlowline", "Flowline")
     arcpy.Project_management("Flowline", "flowlinealbers", albers, "", NAD83)
     arcpy.AddMessage("Projected HUC8s and Flowlines to Albers.")
 
-    # Select out Subregion's HUC12s to fc "WBD_HU8_Local"
+    # Select out Subregion's HUC8s to fc "WBD_HU8_Local"
     arcpy.MakeFeatureLayer_management("huc8albers", "huc8", "", nhd)
     arcpy.MakeFeatureLayer_management("flowlinealbers", "flowline_layer", "", nhd)
     arcpy.SelectLayerByLocation_management("huc8", "INTERSECT", "flowline_layer")
