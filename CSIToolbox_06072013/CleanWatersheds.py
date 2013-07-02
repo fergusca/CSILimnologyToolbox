@@ -105,7 +105,7 @@ arcpy.AddField_management(watersheds, "JOIN", "TEXT")
 arcpy.CalculateField_management(watersheds, "JOIN", '''!GRIDCODE! - 1''', "PYTHON")
 
 # Join Permanent ID from Waterbody seed shapefile
-arcpy.SpatialJoin_analysis(watersheds, seedpoly, os.path.join(outfolder, "CleanWatersheds.shp"), "", "","", "CLOSEST")
+arcpy.SpatialJoin_analysis(watersheds, seedpoly, os.path.join(outfolder, "CleanWatersheds.shp"), "", "","", "HAVE_THEIR_CENTER_IN")
 
 
 
