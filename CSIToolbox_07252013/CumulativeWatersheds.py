@@ -158,9 +158,9 @@ for fc in fcs:
 
 
             
-arcpy.env.workspace = intws
-shedlist = arcpy.ListFeatureClasses("*IWS*")
-arcpy.Merge_management(shedlist, os.path.join(intws, "IWS" + subregion + ".shp"))
+##arcpy.env.workspace = intws
+##shedlist = arcpy.ListFeatureClasses("*IWS*")
+##arcpy.Merge_management(shedlist, os.path.join(intws, "IWS" + subregion + ".shp"))
 
 
 
