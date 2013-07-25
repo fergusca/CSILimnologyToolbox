@@ -172,8 +172,7 @@ for fc in fcs:
         arcpy.Delete_management(sheds3)
         del polynumber
         
-    except:
-        print "Something's went wrong with" + str(fc) 
+    except: 
         continue
 
 

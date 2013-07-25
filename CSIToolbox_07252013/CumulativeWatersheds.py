@@ -153,8 +153,8 @@ for fc in fcs:
         del polynumber
         
     except:
-        print "Something's went wrong with" + str(fc) 
         continue
+        
 
 
             
