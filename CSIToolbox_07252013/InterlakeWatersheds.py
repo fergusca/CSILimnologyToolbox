@@ -62,6 +62,8 @@ arcpy.CopyFeatures_management(fourha_lyr, os.path.join(outfolder, "tenha.shp"))
 tenha = os.path.join(outfolder, "tenha.shp")
 arcpy.FeatureToPoint_management(tenha, os.path.join(outfolder, "tenhacenter.shp"), "INSIDE")
 tenhacenter = os.path.join(outfolder, "tenhacenter.shp")
+arcpy.FeatureToPoint_management(fourha, os.path.join(outfolder, "fourhacenter.shp"), "INSIDE")
+fourhacenter = os.path.join(outfolder, "fourhacenter.shp")
 
 # Make shapefiles of junctions that intersect one hectare and ten hectare lakes.
 arcpy.MakeFeatureLayer_management(junction, os.path.join(outfolder, "junction.lyr"))
@@ -102,6 +104,7 @@ arcpy.AddMessage("Starting iteration.")
 
 for fc in fcs:
     try:
+        arcpy.RefreshCatalog(outfolder)
         name = os.path.splitext(fc)[0]
         arcpy.AddMessage("Processing " + name + ".")
         # Sets the output to in memory:
@@ -153,11 +156,11 @@ for fc in fcs:
                 arcpy.CalculateField_management(sheds3, "Dissolve", "1", "VB")
                 arcpy.Dissolve_management(sheds3, os.path.join(lakes, "dis" + name))
                 dissolve = os.path.join(lakes, "dis" + name)
-                arcpy.SpatialJoin_analysis(dissolve, fc, os.path.join(lakes, "pre" + name))
+                arcpy.SpatialJoin_analysis(dissolve, fc, os.path.join(lakes, "pre" + name),'', '', '', "CLOSEST")
             except:
                 pass
         else:
-            arcpy.SpatialJoin_analysis(sheds3, fc, os.path.join(lakes, "pre" + name))
+            arcpy.SpatialJoin_analysis(sheds3, fc, os.path.join(lakes, "pre" + name), '', '', '', "CLOSEST")
 
         pre = os.path.join(lakes, "pre" + name)
         arcpy.Erase_analysis(pre,fc, os.path.join(intws, "IWS" + name + ".shp"))
