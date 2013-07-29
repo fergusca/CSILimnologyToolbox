@@ -156,11 +156,11 @@ for fc in fcs:
                 arcpy.CalculateField_management(sheds3, "Dissolve", "1", "VB")
                 arcpy.Dissolve_management(sheds3, os.path.join(lakes, "dis" + name))
                 dissolve = os.path.join(lakes, "dis" + name)
-                arcpy.SpatialJoin_analysis(dissolve, fc, os.path.join(lakes, "pre" + name),'', '', '', "HAVE_THEIR_CENTER_IN")
+                arcpy.SpatialJoin_analysis(dissolve, fc, os.path.join(lakes, "pre" + name),'', '', '', "CLOSEST")
             except:
                 pass
         else:
-            arcpy.SpatialJoin_analysis(sheds3, fc, os.path.join(lakes, "pre" + name), '', '', '', "HAVE_THEIR_CENTER_IN")
+            arcpy.SpatialJoin_analysis(sheds3, fc, os.path.join(lakes, "pre" + name), '', '', '', "CLOSEST")
 
         pre = os.path.join(lakes, "pre" + name)
         arcpy.Erase_analysis(pre,fc, os.path.join(intws, "IWS" + name + ".shp"))
