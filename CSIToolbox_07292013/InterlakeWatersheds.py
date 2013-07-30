@@ -99,80 +99,84 @@ arcpy.AddMessage("Starting iteration.")
 
 
 for fc in fcs:
-    arcpy.RefreshCatalog(outfolder)
-    name = os.path.splitext(fc)[0]
-    arcpy.AddMessage("Processing " + name + ".")
-    # Sets the output to in memory:
-    lakes = "in_memory"
-    # Repair the lake geometery if needed.
-    arcpy.RepairGeometry_management(fc)
-    # Select 10 hectare lake junction that don't intersect the target lake. 
-    arcpy.SelectLayerByLocation_management(tenhajunction_lyr, "INTERSECT", fc, '', "NEW_SELECTION")
-    arcpy.SelectLayerByLocation_management(tenhajunction_lyr, "INTERSECT", fc, '', "SWITCH_SELECTION")
-    # Select 4 hectare lake junctions that do intersect it.
-    arcpy.SelectLayerByLocation_management(fourhajunction_lyr, "INTERSECT", fc, '', "NEW_SELECTION")
-    # Copy junctions
-    arcpy.CopyFeatures_management(fourhajunction_lyr, os.path.join(lakes, "junct" + name))
-    lakejunction = os.path.join(lakes, "junct" + name)
-    # Trace the network upstream from the junctions from above, stopping at ten hectare junctions.
-    arcpy.TraceGeometricNetwork_management(network, os.path.join(lakes, "im" + name + "tracelyr"), lakejunction, "TRACE_UPSTREAM", tenhajunction_lyr)
-    trace = os.path.join(lakes, "im" + name + "tracelyr", "NHDFlowline")
-    # Write the trace
-    arcpy.CopyFeatures_management(trace, os.path.join(lakes, "im" + name + "trace"))
-    traceshp = os.path.join(lakes, "im" + name + "trace")
-    # Make a layer from the trace
-    arcpy.MakeFeatureLayer_management(traceshp, os.path.join(lakes, "im" + name + "tracesellyr"))
-    tracesel = os.path.join(lakes, "im" + name + "tracesellyr")
-    # Select from the trace lines those that don't have their midpoint in the lake
-    arcpy.SelectLayerByLocation_management(tracesel, "HAVE_THEIR_CENTER_IN", fc, '', "NEW_SELECTION")
-    arcpy.SelectLayerByLocation_management(tracesel, "HAVE_THEIR_CENTER_IN", fc, '', "SWITCH_SELECTION")
-    # Select watersheds that intersect the trace
-    arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", tracesel, '', "NEW_SELECTION")
-    # Remove watersheds that contain a 10 hectare lake's center from previous selection
-    arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", tenhacenter, '', "REMOVE_FROM_SELECTION")
-    arcpy.CopyFeatures_management(watersheds_lyr, os.path.join(lakes, "im" + name + "sheds"))
-    sheds = os.path.join(lakes, "im" + name + "sheds")
-    arcpy.MakeFeatureLayer_management(sheds, os.path.join(lakes, "im" + name + "shedslyr"))
-    sheds_lyr = os.path.join(lakes, "im" + name + "shedslyr")
-    # Make sure the lake's own watershed gets added (merged) back in to the final aggregated watershed:
-    # Make a centroid for the lake, then intersect it with watersheds, then merge it with the previous sheds made above.
-    arcpy.FeatureToPoint_management(fc, os.path.join(lakes, "center" + name))
-    center = os.path.join(lakes, "center" + name)
-    arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", center, '', "NEW_SELECTION")
-    arcpy.CopyFeatures_management(watersheds_lyr, os.path.join(lakes, "sheds2" + name))
-    sheds2 = os.path.join(lakes, "sheds2" + name)
-    arcpy.Merge_management([sheds,sheds2], os.path.join(lakes, "sheds3" + name))
-    sheds3 = os.path.join(lakes, "sheds3" + name)
-    # Dissolve the aggregate watershed if it has more than one polygon 
-    polynumber = int(arcpy.GetCount_management(sheds3).getOutput(0))
-    if polynumber > 1:
-        arcpy.AddField_management(sheds3, "Dissolve", "TEXT")
-        arcpy.CalculateField_management(sheds3, "Dissolve", "1", "VB")
-        arcpy.Dissolve_management(sheds3, os.path.join(lakes, "pre" + name))
-    elif polynumber < 2:
-        arcpy.CopyFeatures_management(sheds3, os.path.join(lakes, "pre" + name))
-        
-    pre = os.path.join(lakes, "pre" + name)
+    try:
+        arcpy.RefreshCatalog(outfolder)
+        name = os.path.splitext(fc)[0]
+        arcpy.AddMessage("Processing " + name + ".")
+        # Sets the output to in memory:
+        lakes = "in_memory"
+        # Repair the lake geometery if needed.
+        arcpy.RepairGeometry_management(fc)
+        # Select 10 hectare lake junction that don't intersect the target lake. 
+        arcpy.SelectLayerByLocation_management(tenhajunction_lyr, "INTERSECT", fc, '', "NEW_SELECTION")
+        arcpy.SelectLayerByLocation_management(tenhajunction_lyr, "INTERSECT", fc, '', "SWITCH_SELECTION")
+        # Select 4 hectare lake junctions that do intersect it.
+        arcpy.SelectLayerByLocation_management(fourhajunction_lyr, "INTERSECT", fc, '', "NEW_SELECTION")
+        # Copy junctions
+        arcpy.CopyFeatures_management(fourhajunction_lyr, os.path.join(lakes, "junct" + name))
+        lakejunction = os.path.join(lakes, "junct" + name)
+        # Trace the network upstream from the junctions from above, stopping at ten hectare junctions.
+        arcpy.TraceGeometricNetwork_management(network, os.path.join(lakes, "im" + name + "tracelyr"), lakejunction, "TRACE_UPSTREAM", tenhajunction_lyr)
+        trace = os.path.join(lakes, "im" + name + "tracelyr", "NHDFlowline")
+        # Write the trace
+        arcpy.CopyFeatures_management(trace, os.path.join(lakes, "im" + name + "trace"))
+        traceshp = os.path.join(lakes, "im" + name + "trace")
+        # Make a layer from the trace
+        arcpy.MakeFeatureLayer_management(traceshp, os.path.join(lakes, "im" + name + "tracesellyr"))
+        tracesel = os.path.join(lakes, "im" + name + "tracesellyr")
+        # Select from the trace lines those that don't have their midpoint in the lake
+        arcpy.SelectLayerByLocation_management(tracesel, "HAVE_THEIR_CENTER_IN", fc, '', "NEW_SELECTION")
+        arcpy.SelectLayerByLocation_management(tracesel, "HAVE_THEIR_CENTER_IN", fc, '', "SWITCH_SELECTION")
+        # Select watersheds that intersect the trace
+        arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", tracesel, '', "NEW_SELECTION")
+        # Remove watersheds that contain a 10 hectare lake's center from previous selection
+        arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", tenhacenter, '', "REMOVE_FROM_SELECTION")
+        arcpy.CopyFeatures_management(watersheds_lyr, os.path.join(lakes, "im" + name + "sheds"))
+        sheds = os.path.join(lakes, "im" + name + "sheds")
+        arcpy.MakeFeatureLayer_management(sheds, os.path.join(lakes, "im" + name + "shedslyr"))
+        sheds_lyr = os.path.join(lakes, "im" + name + "shedslyr")
+        # Make sure the lake's own watershed gets added (merged) back in to the final aggregated watershed:
+        # Make a centroid for the lake, then intersect it with watersheds, then merge it with the previous sheds made above.
+        arcpy.FeatureToPoint_management(fc, os.path.join(lakes, "center" + name))
+        center = os.path.join(lakes, "center" + name)
+        arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", center, '', "NEW_SELECTION")
+        arcpy.CopyFeatures_management(watersheds_lyr, os.path.join(lakes, "sheds2" + name))
+        sheds2 = os.path.join(lakes, "sheds2" + name)
+        arcpy.Merge_management([sheds,sheds2], os.path.join(lakes, "sheds3" + name))
+        sheds3 = os.path.join(lakes, "sheds3" + name)
+        # Dissolve the aggregate watershed if it has more than one polygon 
+        polynumber = int(arcpy.GetCount_management(sheds3).getOutput(0))
+        if polynumber > 1:
+            arcpy.AddField_management(sheds3, "Dissolve", "TEXT")
+            arcpy.CalculateField_management(sheds3, "Dissolve", "1", "VB")
+            arcpy.Dissolve_management(sheds3, os.path.join(lakes, "pre" + name))
+        elif polynumber < 2:
+            arcpy.CopyFeatures_management(sheds3, os.path.join(lakes, "pre" + name))
+            
+        pre = os.path.join(lakes, "pre" + name)
 
-    # Get the permanent id from the feature and add it to output shed
-    field = "Permanent_"
-    cursor = arcpy.SearchCursor(fc)
-    for row in cursor:
-        id = row.getValue(field)
-    arcpy.AddField_management(pre, "NHD_ID", "TEXT")   
-    arcpy.CalculateField_management(pre, "NHD_ID", '"{0}"'.format(id), "PYTHON")   
-    # Erase the lakes own geometry from its watershed
-    arcpy.Erase_analysis(pre,fc, os.path.join(intws, "IWS" + name + ".shp"))
-    # Delete intermediate in_memory fcs and variables
-    arcpy.Delete_management(lakejunction)
-    arcpy.Delete_management(trace)
-    arcpy.Delete_management(traceshp)
-    arcpy.Delete_management(tracesel)
-    arcpy.Delete_management(sheds)
-    arcpy.Delete_management(sheds_lyr)
-    arcpy.Delete_management(center)
-    arcpy.Delete_management(sheds2)
-    arcpy.Delete_management(sheds3)
+        # Get the permanent id from the feature and add it to output shed
+        field = "Permanent_"
+        cursor = arcpy.SearchCursor(fc)
+        for row in cursor:
+            id = row.getValue(field)
+        arcpy.AddField_management(pre, "NHD_ID", "TEXT")   
+        arcpy.CalculateField_management(pre, "NHD_ID", '"{0}"'.format(id), "PYTHON")   
+        # Erase the lakes own geometry from its watershed
+        arcpy.Erase_analysis(pre,fc, os.path.join(intws, "IWS" + name + ".shp"))
+        # Delete intermediate in_memory fcs and variables
+        arcpy.Delete_management(lakejunction)
+        arcpy.Delete_management(trace)
+        arcpy.Delete_management(traceshp)
+        arcpy.Delete_management(tracesel)
+        arcpy.Delete_management(sheds)
+        arcpy.Delete_management(sheds_lyr)
+        arcpy.Delete_management(center)
+        arcpy.Delete_management(sheds2)
+        arcpy.Delete_management(sheds3)
+
+    except:
+        continue
 
 
 
