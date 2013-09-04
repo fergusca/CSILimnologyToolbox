@@ -35,7 +35,10 @@ outfolder = os.path.join(outfolderinput, nhdsubregion)
 
 # Get lakes, ponds and reservoirs over a hectare.
 
-arcpy.MakeFeatureLayer_management(nhdwaterbody, os.path.join(outfolder, "csiwaterbody.lyr"),""""AreaSqKm" >=0.01 AND ( "FType" = 390 OR "FType" = 436) AND ("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621)""")
+arcpy.MakeFeatureLayer_management(nhdwaterbody, os.path.join(outfolder, "csiwaterbody.lyr"),'''"AreaSqKm" >=0.04 AND\
+("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR\
+"FCode" = 43600 OR "FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR\
+"FCode" = 43621 OR ("FCode" = 43601 AND "AreaSqKm" >=0.1 ))''')
                                   
 csiwaterbody_lyr = os.path.join(outfolder, "csiwaterbody.lyr")
 arcpy.CopyFeatures_management(csiwaterbody_lyr, os.path.join(outfolder, "csiwaterbody.shp"))
@@ -164,9 +167,9 @@ for type in typelist:
     arcpy.AddField_management(type, "Connection", "TEXT")
 
 # Calculate Class fields  
-arcpy.CalculateField_management(stla_lakes, "Connection", '''"%s" % ("LakeStream")''', "PYTHON")
+arcpy.CalculateField_management(stla_lakes, "Connection", '''"%s" % ("DR_LakeStream")''', "PYTHON")
 arcpy.CalculateField_management(se_lakes, "Connection", '''"%s" % ("Isolated")''', "PYTHON")
-arcpy.CalculateField_management(st_lakes, "Connection", '''"%s" % ("Stream")''', "PYTHON")
+arcpy.CalculateField_management(st_lakes, "Connection", '''"%s" % ("DR_Stream")''', "PYTHON")
 arcpy.CalculateField_management(hw_lakes, "Connection", '''"%s" % ("Headwater")''', "PYTHON")
 arcpy.AddMessage("Lake connectivity attribution is complete.")
 

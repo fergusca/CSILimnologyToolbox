@@ -19,7 +19,10 @@ subregion_number = os.path.basename(nhd)
 subregion = subregion_number[4:8]
 
 # Create a fc of ten hectare lakes:
-exp10ha = '''"AreaSqKm" >=0.1 AND ("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621)'''
+exp10ha = '''"AreaSqKm" >=0.1 AND ("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR\
+"FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR\
+"FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621 OR\
+"FCode" = 43601)'''
 arcpy.MakeFeatureLayer_management(waterbody, os.path.join(outfolder, "tenha.lyr"), exp10ha)
 tenha_lyr = os.path.join(outfolder, "tenha.lyr")
 arcpy.CopyFeatures_management(tenha_lyr, os.path.join(mem, "tenhalakes"))

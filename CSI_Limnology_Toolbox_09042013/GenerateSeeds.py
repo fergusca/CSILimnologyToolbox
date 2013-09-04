@@ -36,7 +36,10 @@ albers.factoryCode = 102039
 albers.create()
 
 # Make a layer from NHDWaterbody feature class and select out lakes smaller than a hectare. Project to EPSG 102039.
-arcpy.MakeFeatureLayer_management("NHDWaterbody","Waterbody", """"AreaSqKm" >=0.04 AND ( "FType" = 390 OR "FType" = 436) AND ("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621)""", scratch, "")
+arcpy.MakeFeatureLayer_management("NHDWaterbody","Waterbody", '''"AreaSqKm" >=0.04 AND ("FCode" = 39000 OR\
+"FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR\
+"FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621 OR\
+("FCode" = 43601 AND "AreaSqKm" >=0.1 ))''', scratch, "")
 arcpy.CopyFeatures_management("Waterbody",os.path.join(scratch, "Waterbody.shp"))
 waterbody_nad83 = os.path.join(scratch, "Waterbody.shp")
 arcpy.Project_management(waterbody_nad83, os.path.join(scratch, "Waterbody_Albers.shp"), albers, "", nad83)

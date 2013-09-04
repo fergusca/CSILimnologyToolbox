@@ -40,7 +40,9 @@ waterbodyshp = os.path.join(outfolder, "NHDWaterbody.shp")
 arcpy.MakeFeatureLayer_management(waterbodyshp, os.path.join(outfolder, "waterbody.lyr"))
 waterbody_lyr = os.path.join(outfolder, "waterbody.lyr")
 arcpy.SelectLayerByAttribute_management(waterbody_lyr, "NEW_SELECTION", '''"AreaSqKm">=0.04''')
-arcpy.SelectLayerByAttribute_management(waterbody_lyr, "SUBSET_SELECTION", '''"AreaSqKm" >=0.04 AND ("FCode" = 39000 OR "FCode" = 39004 OR "FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621)''')
+arcpy.SelectLayerByAttribute_management(waterbody_lyr, "SUBSET_SELECTION", '''"AreaSqKm" >=0.04 AND ("FCode" = 39000 OR "FCode" = 39004 OR\
+"FCode" = 39009 OR "FCode" = 39010 OR "FCode" = 39011 OR "FCode" = 39012 OR "FCode" = 43600 OR "FCode" = 43613 OR\
+"FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR "FCode" = 43619 OR "FCode" = 43621 OR ("FCode" = 43601 AND "AreaSqKm" >=0.1 ))''')
 arcpy.SelectLayerByLocation_management(waterbody_lyr, "INTERSECT", flowline, "", "SUBSET_SELECTION")
 try:
     arcpy.Project_management(filterlakes, os.path.join(outfolder, "filter.shp"),nad83,'',albers)
@@ -137,7 +139,7 @@ for fc in fcs:
         sheds_lyr = os.path.join(lakes, "im" + name + "shedslyr")
         # Make sure the lake's own watershed gets added (merged) back in to the final aggregated watershed:
         # Make a centroid for the lake, then intersect it with watersheds, then merge it with the previous sheds made above.
-        arcpy.FeatureToPoint_management(fc, os.path.join(lakes, "center" + name))
+        arcpy.FeatureToPoint_management(fc, os.path.join(lakes, "center" + name), "INSIDE")
         center = os.path.join(lakes, "center" + name)
         arcpy.SelectLayerByLocation_management(watersheds_lyr, "INTERSECT", center, '', "NEW_SELECTION")
         arcpy.CopyFeatures_management(watersheds_lyr, os.path.join(lakes, "sheds2" + name))
