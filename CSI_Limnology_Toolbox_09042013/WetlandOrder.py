@@ -35,9 +35,15 @@ arcpy.MakeFeatureLayer_management(nwi, "nwi_lyr")
 arcpy.SelectLayerByAttribute_management("nwi_lyr", "NEW_SELECTION", nwifilter)
 arcpy.CopyFeatures_management("nwi_lyr", "allwetpre")
 
+# Add and calculate CSI ID number field
+arcpy.AddField_management("allwetpre", "CSI_ID", "LONG")
+arcpy.CalculateField_management("allwetpre", "CSI_ID", "!OBJECTID!", "PYTHON")
+
 # Add field for hectares and calculate
 arcpy.AddField_management("allwetpre", "WetHa", "DOUBLE")
 
+# Calculate geometry for wetland hectares.
+arcpy.CalculateField_management("allwetpre", "WetHa", "!shape.area@hectares!", "PYTHON")
 
 # Buffer a donut around selected wetland polys 30m
 arcpy.Buffer_analysis("allwetpre", "allwet", "30 meters", "OUTSIDE_ONLY")
@@ -54,6 +60,7 @@ fm_wetorder = arcpy.FieldMap()
 fm_wetha = arcpy.FieldMap()
 fm_attribute = arcpy.FieldMap()
 fm_lengthkm = arcpy.FieldMap()
+fm_csi = arcpy.FieldMap()
 
 fm_strahlermax.addInputField(rivex, "Strahler")
 fm_strahlersum.addInputField(rivex, "Strahler")
@@ -61,6 +68,7 @@ fm_wetorder.addInputField("allwet", "WetOrder")
 fm_wetha.addInputField("allwet", "WetHa")
 fm_attribute.addInputField("allwet", "ATTRIBUTE")
 fm_lengthkm.addInputField(rivex, "LengthKm")
+fm_csi.addInputField("allwet", "CSI_ID")
 
 fm_lengthkm.mergeRule = 'Sum'
 fm_strahlermax.mergeRule = 'Max'
@@ -87,6 +95,7 @@ fms.addFieldMap(fm_wetorder)
 fms.addFieldMap(fm_wetha)
 fms.addFieldMap(fm_attribute)
 fms.addFieldMap(fm_lengthkm)
+fms.addFieldMap(fm_csi)
 #####################################################
 
 arcpy.SpatialJoin_analysis("allwet", rivex, "conwetorder", '', '', fms)
@@ -99,8 +108,12 @@ arcpy.DeleteField_management("conwetorder", "Join_Count")
 # Create output feature class in a file geodatabase
 arcpy.CreateFileGDB_management(outfolder, "WetlandOrder")
 outgdb = os.path.join(outfolder, "WetlandOrder.gdb")
-arcpy.FeatureClassToFeatureClass_conversion("conwetorder", outgdb, "WetlandOrder")
-outfc = os.path.join(outgdb, "WetlandOrder")
+arcpy.FeatureClassToFeatureClass_conversion("conwetorder", outgdb, "Buffer30m")
+buffer30m = os.path.join(outgdb,"Buffer30m")
+
+
+
+outfc = os.path.join(outgdb, "Buffer30m")
 try:
     arcpy.DeleteField_management(outfc, "BUFF_DIST")
     arcpy.DeleteField_management(outfc, "ACRES")
@@ -154,8 +167,7 @@ try:
 except:
     pass
 
-# Calculate geometry for wetland hectares.
-arcpy.CalculateField_management(outfc, "WetHa", "!shape.area@hectares!", "PYTHON")
+
 
 # Write table to csv file.
 def TableToCSV(fc,CSVFile):
@@ -169,12 +181,14 @@ def TableToCSV(fc,CSVFile):
     
 if __name__ == '__main__':
 
-    fc = os.path.join(outgdb,"WetlandOrder")
+    fc = os.path.join(outgdb,"Buffer30m")
     csv = os.path.join(outfolder,"WetlandOrder.csv")
     TableToCSV(fc,csv)
 
 
-
+# Join fields from buffer rings back to original polygons.
+arcpy.JoinField_management("allwetpre", "CSI_ID", buffer30m, "CSI_ID", ["WetOrder","StrOrdSum","StrOrdMax","StreamCnt","StreamKm", "VegType"])
+arcpy.FeatureClassToFeatureClass_conversion("allwetpre", outgdb, "WetlandOrder")
     
 
 
