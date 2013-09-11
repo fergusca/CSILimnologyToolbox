@@ -146,6 +146,54 @@ with arcpy.da.UpdateCursor(outfc, ["Veg", "VegType"]) as cursor:
 
 del cursor
 
+# Create and calc regime field
+# Because there are no place holders where a classification type is omitted in NWI Codes they are hard to separate...
+arcpy.AddField_management(outfc, "att_", "TEXT") # ex. "PFO1A_"
+arcpy.AddField_management(outfc, "att3", "TEXT") # ex. "PFO*"
+arcpy.AddField_management(outfc, "att4", "TEXT") # ex "PFO1*"
+arcpy.AddField_management(outfc, "Regime", "TEXT") # This will hold final value. ex. "E"
+att_ = '''!ATTRIBUTE! + "_"'''
+att3 = "!att_![3]"
+att4 = "!att_![4]"
+arcpy.CalculateField_management(outfc, "att_", att_, "PYTHON")
+arcpy.CalculateField_management(outfc, "att3", att3, "PYTHON")
+arcpy.CalculateField_management(outfc, "att4", att4, "PYTHON")
+
+# So we run a cursor...            row[0]  row[1]   row[2]
+with arcpy.da.UpdateCursor(outfc, ["att3", "att4", "Regime"]) as cursor:
+    for row in cursor:
+        if row[0].isdigit():  # if the 4th character is a number (subclass) the next number is the regime
+            row[2] = row[1]
+        elif row[0].isupper(): # if the 4th character is an upper case letter it is the regime
+            row[2] = row[0]
+        elif row[0].islower(): # if the 4th character is a lower case letter there's no water regime
+            row[2] = "unknown"
+        elif row[1] == "/":     # if there are multiple clasifications the regime is unknown
+            row[2] = "unknown"
+        else:                   # if there's some other odd character the regime is unknown.
+            row[2] = "unknown"
+
+        cursor.updateRow(row)
+
+del cursor
+
+# Then we run another cursor...     row[0]  
+with arcpy.da.UpdateCursor(outfc, ["Regime"]) as cursor:
+    for row in cursor:
+        if row[0] == "/":
+            row[0] = "unknown"       
+
+        cursor.updateRow(row)
+
+del cursor
+
+arcpy.DeleteField_management(outfc, "att_")
+arcpy.DeleteField_management(outfc, "att3")        
+arcpy.DeleteField_management(outfc, "att4")
+
+
+              
+ 
 # Calculate WetOrder from StrOrdSum
 with arcpy.da.UpdateCursor(outfc, ["StrOrdSum", "WetOrder"]) as cursor:
     for row in cursor:
@@ -187,7 +235,7 @@ if __name__ == '__main__':
 
 
 # Join fields from buffer rings back to original polygons.
-arcpy.JoinField_management("allwetpre", "CSI_ID", buffer30m, "CSI_ID", ["WetOrder","StrOrdSum","StrOrdMax","StreamCnt","StreamKm", "VegType"])
+arcpy.JoinField_management("allwetpre", "CSI_ID", buffer30m, "CSI_ID", ["WetOrder","StrOrdSum","StrOrdMax","StreamCnt","StreamKm", "VegType", "Regime"])
 arcpy.FeatureClassToFeatureClass_conversion("allwetpre", outgdb, "WetlandOrder")
     
 
