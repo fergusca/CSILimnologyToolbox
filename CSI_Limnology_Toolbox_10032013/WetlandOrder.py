@@ -1,9 +1,6 @@
 # Filename: WetlandOrder.py
-# Purpose: Assigns a numerical class to wetlands based on their connectivity to the landscape.
-# Classes:
-    # 0 = Headwater wetlands no inlets but have an outlet
-    # 1 or greater by highest strahler order of connecting streams
-    # -1 Wetlands that are isolated from streams
+# Purpose: Assigns a class to wetlands based on their connectivity to the landscape.
+
 
 import os
 import arcpy
@@ -11,6 +8,7 @@ import shutil
 from arcpy.da import *
 
 arcpy.CheckOutExtension("DataInteroperability")
+arcpy.ResetEnvironments()
 arcpy.env.overwriteOutput = "TRUE"
 
 # User input parameters:
@@ -152,7 +150,7 @@ arcpy.AddField_management(outfc, "att_", "TEXT") # ex. "PFO1A_"
 arcpy.AddField_management(outfc, "att3", "TEXT") # ex. "PFO*"
 arcpy.AddField_management(outfc, "att4", "TEXT") # ex "PFO1*"
 arcpy.AddField_management(outfc, "Regime", "TEXT") # This will hold final value. ex. "E"
-att_ = '''!ATTRIBUTE! + "_"'''
+att_ = '''!ATTRIBUTE! + "____"'''
 att3 = "!att_![3]"
 att4 = "!att_![4]"
 arcpy.CalculateField_management(outfc, "att_", att_, "PYTHON")
