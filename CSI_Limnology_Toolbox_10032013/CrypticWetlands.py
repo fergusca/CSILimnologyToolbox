@@ -43,34 +43,34 @@ arcpy.Delete_management("tpi")
 lowflat = BooleanAnd("flat", "low")
 lowflat.save("lowflat")
 lowflat.save(os.path.join(outfolder,"lowflat.tif"))
-### Make into binary raster
-##gt = GreaterThan("lowflat", 0)
-##gt.save("gt")
-##
-##binary = (Raster("gt") == 1)
-##binary.save("binary")
-##
-##arcpy.Delete_management("gt")
-##arcpy.Delete_management("lowflat")
-##
-### Apply a filter for cleanup
-##maj = MajorityFilter("binary", "EIGHT")
-##maj.save("maj")
-###maj.save(os.path.join(outfolder, "maj.tif"))
-##
-### Group cells into clusters giving the cells in the cluster the same value.
-##regrp = RegionGroup("maj", "EIGHT")
-##regrp.save("regrp")
-###regrp.save(os.path.join(outfolder, "regrp.tif"))
-##
-##arcpy.Delete_management("maj")
-##
-### Extract groups that are 1 hectare or larger
-##extract = ExtractByAttributes("regrp", '"Count" > 400')
-##extract.save("extract")
-##extract.save(os.path.join(outfolder, "wetlands.tif"))
-##
-##arcpy.Delete_management("regrp")
+# Make into binary raster
+gt = GreaterThan("lowflat", 0)
+gt.save("gt")
+
+binary = (Raster("gt") == 1)
+binary.save("binary")
+
+arcpy.Delete_management("gt")
+arcpy.Delete_management("lowflat")
+
+# Apply a filter for cleanup
+maj = MajorityFilter("binary", "EIGHT")
+maj.save("maj")
+#maj.save(os.path.join(outfolder, "maj.tif"))
+
+# Group cells into clusters giving the cells in the cluster the same value.
+regrp = RegionGroup("maj", "EIGHT")
+regrp.save("regrp")
+#regrp.save(os.path.join(outfolder, "regrp.tif"))
+
+arcpy.Delete_management("maj")
+
+# Extract groups that are 1 hectare or larger
+extract = ExtractByAttributes("regrp", '"Count" > 400')
+extract.save("extract")
+extract.save(os.path.join(outfolder, "wetlands.tif"))
+
+arcpy.Delete_management("regrp")
 
 
 
