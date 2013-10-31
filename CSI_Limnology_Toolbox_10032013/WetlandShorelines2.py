@@ -38,7 +38,8 @@ filter = '''"AreaSqKm" >=0.01 AND ( "FType" = 390 OR "FType" = 436) AND\
           "FCode" = 43615 OR "FCode" = 43617 OR "FCode" = 43618 OR\
           "FCode" = 43619 OR "FCode" = 43621) OR ("Fcode" = 43601 AND "AreaSqKm" >= 0.1)'''
 
-nwi_filter = """ "WETLAND_TY" = 'Freshwater Forested/Shrub Wetland' OR "WETLAND_TY" = 'Freshwater Emergent Wetland' OR "WETLAND_TY" = 'Other' """
+nwi_filter = """ "ATTRIBUTE" LIKE 'P%' """
+
 
 
 
