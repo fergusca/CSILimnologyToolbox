@@ -61,6 +61,8 @@ fmid_name.name = 'NHD_ID'
 fmid_name.aliasName = 'NHD_ID'
 fmid.outputField = fmid_name
 
+fmstrahler.mergeRule = 'Max'
+
 fms.addFieldMap(fmcon)
 fms.addFieldMap(fmid)
 fms.addFieldMap(fmstrahler)
