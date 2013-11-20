@@ -70,7 +70,7 @@ with arcpy.da.UpdateCursor(table, ["ZONEAREAHA"]) as cursor:
 arcpy.AddField_management(table, "Density", "DOUBLE",'','','','',"NULLABLE")
 exp = "!SUM_LengthM! / !ZONEAREAHA!"
 arcpy.CalculateField_management(table, "Density", exp, "PYTHON")           
-
+arcpy.DeleteField_management(table, "FREQUENCY")
 try:
     arcpy.Delete_management(scratch)
 except:
