@@ -44,7 +44,6 @@ nwi_filter = """ "ATTRIBUTE" LIKE 'P%' """
 
 
 # NHD feature class variables:
-flowline = os.path.join(nhd, "Hydrography", "NHDFlowline")
 waterbody = lakes
 network = os.path.join(nhd, "Hydrography", "HYDRO_NET")
 junction = os.path.join(nhd, "Hydrography", "HYDRO_NET_Junctions")
